@@ -14,7 +14,7 @@ Before:
     return 'ag'.g:ack_default_options.' '.join(a:000, ' ')
   endfun
 
-  runtime autoload/ack.vim
+  runtime autoload/acke.vim
 
 After:
   unlet! b:foo
@@ -70,102 +70,102 @@ Execute(s:parse_options parses a string of options):
   AssertEqual ['ack', '-B', '-f foo', '--hello world'],
               \ S('parse_options', opts)
 
-Execute(ack#Prg assembles command for g:ackprg):
-  AssertEqual Ack(), ack#Prg(). ' '
+Execute(acke#Prg assembles command for g:ackprg):
+  AssertEqual Ack(), acke#Prg(). ' '
 
-Execute(ack#Ignore adds files/dirs to ignore):
-  call ack#Ignore(v:false, 'foo', 'bar')
+Execute(acke#Ignore adds files/dirs to ignore):
+  call acke#Ignore(v:false, 'foo', 'bar')
   let expected = Ack('--ignore bar --ignore foo')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#Ignore can fork to buffer local):
-  call ack#Ignore(v:false, 'foo', 'bar')
-  call ack#Ignore(v:true, 'baz')
-  call ack#Ignore(v:false, 'boof')
+Execute(acke#Ignore can fork to buffer local):
+  call acke#Ignore(v:false, 'foo', 'bar')
+  call acke#Ignore(v:true, 'baz')
+  call acke#Ignore(v:false, 'boof')
   let expected = Ack('--ignore bar --ignore baz --ignore foo')
-  AssertEqual expected, ack#Prg()
-  call ack#WipeBufferLocal()
+  AssertEqual expected, acke#Prg()
+  call acke#WipeBufferLocal()
   let expected = Ack('--ignore bar --ignore boof --ignore foo')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#Include includes files/dirs from the ignore list):
-  call ack#Ignore(v:false, 'foo', 'bar')
-  call ack#Include(v:false, 'bar', 'baz')
+Execute(acke#Include includes files/dirs from the ignore list):
+  call acke#Ignore(v:false, 'foo', 'bar')
+  call acke#Include(v:false, 'bar', 'baz')
   let expected = Ack('--ignore foo')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#Include can fork to buffer local):
-  call ack#Ignore(v:false, 'foo', 'bar', 'baz')
-  call ack#Include(v:true, 'baz')
+Execute(acke#Include can fork to buffer local):
+  call acke#Ignore(v:false, 'foo', 'bar', 'baz')
+  call acke#Include(v:true, 'baz')
   let expected = Ack('--ignore bar --ignore foo')
-  AssertEqual expected, ack#Prg()
-  call ack#WipeBufferLocal()
+  AssertEqual expected, acke#Prg()
+  call acke#WipeBufferLocal()
   let expected = Ack('--ignore bar --ignore baz --ignore foo')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#AddOption adds options):
-  call ack#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
+Execute(acke#AddOption adds options):
+  call acke#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
   let expected = Ack('--foo bar -f --baz')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#AddOption can fork to buffer local):
-  call ack#AddOption(v:false, '-f', '--baz')
-  call ack#AddOption(v:true, '--foo', 'bar')
+Execute(acke#AddOption can fork to buffer local):
+  call acke#AddOption(v:false, '-f', '--baz')
+  call acke#AddOption(v:true, '--foo', 'bar')
   let expected = Ack('-f --baz --foo bar')
-  AssertEqual expected, ack#Prg()
-  call ack#WipeBufferLocal()
+  AssertEqual expected, acke#Prg()
+  call acke#WipeBufferLocal()
   let expected = Ack('-f --baz')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#RemoveOption removes options):
-  call ack#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
-  call ack#RemoveOption(v:false, '--foo', '-f')
+Execute(acke#RemoveOption removes options):
+  call acke#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
+  call acke#RemoveOption(v:false, '--foo', '-f')
   let expected = Ack('--baz')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
-Execute(ack#RemoveOption can fork to buffer local):
-  call ack#AddOption(v:false, '-f', '--foo', 'bar', '--baz')
-  call ack#RemoveOption(v:true, '--foo')
+Execute(acke#RemoveOption can fork to buffer local):
+  call acke#AddOption(v:false, '-f', '--foo', 'bar', '--baz')
+  call acke#RemoveOption(v:true, '--foo')
   let expected = Ack('-f --baz')
-  AssertEqual expected, ack#Prg()
-  call ack#WipeBufferLocal()
+  AssertEqual expected, acke#Prg()
+  call acke#WipeBufferLocal()
   let expected = Ack('-f --foo bar --baz')
-  AssertEqual expected, ack#Prg()
+  AssertEqual expected, acke#Prg()
 
 Execute(AckInclude#complete completes ignored directories):
-  call ack#Ignore(v:false, 'foo', 'bar')
-  AssertEqual "bar\nfoo", ack#complete('', 'AckInclude', '')
+  call acke#Ignore(v:false, 'foo', 'bar')
+  AssertEqual "bar\nfoo", acke#complete('', 'AckInclude', '')
 
 Execute(AckIncludeBiffer#complete completes on buffer local):
-  call ack#Ignore(v:false, 'foo')
-  call ack#Ignore(v:true, 'bar')
-  AssertEqual "bar\nfoo", ack#complete('', 'AckIncludeBuffer', '')
+  call acke#Ignore(v:false, 'foo')
+  call acke#Ignore(v:true, 'bar')
+  AssertEqual "bar\nfoo", acke#complete('', 'AckIncludeBuffer', '')
 
 Execute(AckAddOption#complete completes whitelisted options):
   let wl = sort(split(g:ack_whitelisted_options, ' '))
-  AssertEqual join(wl, "\n"), ack#complete('', 'AckAddOption', '')
+  AssertEqual join(wl, "\n"), acke#complete('', 'AckAddOption', '')
 
-  call ack#AddOption(v:false, '--case')
-  AssertEqual join(wl[1:], "\n"), ack#complete('', 'AckAddOption', '')
+  call acke#AddOption(v:false, '--case')
+  AssertEqual join(wl[1:], "\n"), acke#complete('', 'AckAddOption', '')
 
-  call ack#RemoveOption(v:false, '--case')
-  AssertEqual join(wl, "\n"), ack#complete('', 'AckAddOption', '')
+  call acke#RemoveOption(v:false, '--case')
+  AssertEqual join(wl, "\n"), acke#complete('', 'AckAddOption', '')
 
 Execute(AckAddOptionBuffer#complete completes on buffer local):
   let wl = sort(split(g:ack_whitelisted_options, ' '))
-  call ack#AddOption(v:false, wl[0])
-  call ack#AddOption(v:true, wl[1])
-  AssertEqual wl[2], ack#complete('', 'AckAddOptionBuffer', '')
+  call acke#AddOption(v:false, wl[0])
+  call acke#AddOption(v:true, wl[1])
+  AssertEqual wl[2], acke#complete('', 'AckAddOptionBuffer', '')
 
 Execute(AckRemoveOption#complete completes set options):
   let wl = sort(split(g:ack_whitelisted_options, ' '))
-  call ack#AddOption(v:false, wl[0], wl[1], wl[2])
-  AssertEqual join(wl[:2], "\n"), ack#complete('', 'AckRemoveOption', '')
-  call ack#RemoveOption(v:false, wl[0])
-  AssertEqual join(wl[1:2], "\n"), ack#complete('', 'AckRemoveOption', '')
+  call acke#AddOption(v:false, wl[0], wl[1], wl[2])
+  AssertEqual join(wl[:2], "\n"), acke#complete('', 'AckRemoveOption', '')
+  call acke#RemoveOption(v:false, wl[0])
+  AssertEqual join(wl[1:2], "\n"), acke#complete('', 'AckRemoveOption', '')
 
 Execute(AckRemoveOptionBuffer#complete completes on buffer local):
   let wl = sort(split(g:ack_whitelisted_options, ' '))
-  call ack#AddOption(v:false, wl[0], wl[1], wl[2])
-  call ack#RemoveOption(v:true, wl[1], wl[2])
-  AssertEqual wl[0], ack#complete('', 'AckRemoveOptionBuffer', '')
+  call acke#AddOption(v:false, wl[0], wl[1], wl[2])
+  call acke#RemoveOption(v:true, wl[1], wl[2])
+  AssertEqual wl[0], acke#complete('', 'AckRemoveOptionBuffer', '')

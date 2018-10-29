@@ -12,7 +12,7 @@ call extend(s:, s:var)
 
 " -- PUBLIC -- {{{1
 
-fun! ack#Prg(...) abort " {{{2
+fun! acke#Prg(...) abort " {{{2
   " assembles and returns ack command
   let l:prg = [get(s:, s:exe)]
   call extend(l:prg, s:[s:default])
@@ -21,23 +21,23 @@ fun! ack#Prg(...) abort " {{{2
   return join(l:prg, a:0 ? a:1 : ' ')
 endfun
 
-fun! ack#Intercept(func, ...) abort " {{{2
-  let g:ackprg = ack#prg()
+fun! acke#Intercept(func, ...) abort " {{{2
+  let g:ackprg = acke#Prg()
   return call(a:func, a:000)
 endfun
 
-fun! ack#Ignore(buffer, ...) abort " {{{2
+fun! acke#Ignore(buffer, ...) abort " {{{2
   let l:ignored = s:get_or_copy(a:buffer, s:ignore, b:, s:)
   call uniq(sort(extend(l:ignored, a:000)))
 endfun
 
-fun! ack#Include(buffer, ...) abort " {{{2
+fun! acke#Include(buffer, ...) abort " {{{2
   let l:ignored = s:get_or_copy(a:buffer, s:ignore, b:, s:)
   let l:to_ignore = s:to_set(a:000)
   call uniq(sort(filter(l:ignored, '!has_key(l:to_ignore, v:val)')))
 endfun
 
-fun! ack#AddOption(buffer, ...) abort " {{{2
+fun! acke#AddOption(buffer, ...) abort " {{{2
   let l:opts = s:get_or_copy(a:buffer, s:opts, b:, s:)
   let l:new_opts = []
 
@@ -53,7 +53,7 @@ fun! ack#AddOption(buffer, ...) abort " {{{2
   call s:build_unset_opts(a:buffer ? b: : s:)
 endfun
 
-fun! ack#RemoveOption(buffer, ...) abort " {{{2
+fun! acke#RemoveOption(buffer, ...) abort " {{{2
   let l:opts = s:get_or_copy(a:buffer, s:opts, b:, s:)
   let l:to_remove = s:to_set(a:000)
   let l:indices = []
@@ -71,11 +71,11 @@ fun! ack#RemoveOption(buffer, ...) abort " {{{2
   call s:build_unset_opts(a:buffer ? b: : s:)
 endfun
 
-fun! ack#WipeBufferLocal() abort " {{{2
+fun! acke#WipeBufferLocal() abort " {{{2
   exe "unlet! ".join(map([s:ignore, s:opts, s:unset], '"b:".v:val'), ' ')
 endfun
 
-fun! ack#complete(...) abort " {{{2
+fun! acke#complete(...) abort " {{{2
   let l:cmd = substitute(a:2, '.*\(Ack\w\+\).*', '\1', '')
 
   if l:cmd =~# 'Include'
@@ -207,4 +207,4 @@ let s:[s:allowed] = s:parse_options(get(g:, s:allowed,
       \ '--case --literal --follow'))
 
 let s:[s:ignore] = get(g:, s:ignore, [])
-let s:[s:opts] = get(g:, s:opts, [])
+let s:[s:opts] = s:parse_options(get(g:, s:opts, []))
