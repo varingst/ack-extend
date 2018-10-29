@@ -34,16 +34,16 @@ command! -bang -nargs=* -complete=file
 
 command! AckShowCommand echo acke#Prg("\n")
 command! AckWipeBufferLocal call acke#WipeBufferLocal()
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckAddOption
        \ call acke#AddOption(v:false, <f-args>)
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckAddOptionBuffer
        \ call acke#AddOption(v:true, <f-args>)
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckRemoveOption
        \ call acke#RemoveOption(v:false, <f-args>)
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckRemoveOptionBuffer
        \ call acke#RemoveOption(v:true, <f-args>)
 command! -nargs=+ -complete=file
@@ -52,10 +52,10 @@ command! -nargs=+ -complete=file
 command! -nargs=+ -complete=file
        \ AckIgnoreBuffer
        \ call acke#Ignore(v:true, <f-args>)
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckInclude
        \ call acke#Include(v:false, <f-args>)
-command! -nargs=+ -complete=custom,ack#complete
+command! -nargs=+ -complete=custom,acke#complete
        \ AckIncludeBuffer
        \ call acke#Include(v:true, <f-args>)
 
