@@ -1,0 +1,171 @@
+Before:
+  let g:ack_extend_TESTING = 1
+  let g:loaded_ack = 1
+  " runtime plugin/ack.vim
+  let g:ack_default_options = ' -s -H --nopager --nocolor --nogroup --column'
+  let g:ack_whitelisted_options = '--case --literal --follow'
+
+  let s:ignore = 'ack_ignore'
+  let s:options = 'ack_options'
+  let s:unset = 'ack_unset_options'
+  let s:allowed = 'ack_whitelisted_options'
+
+  fun! Ack(...)
+    return 'ag'.g:ack_default_options.' '.join(a:000, ' ')
+  endfun
+
+  runtime autoload/ack.vim
+
+After:
+  unlet! b:foo
+  unlet! g:foo
+  unlet! g:ackprg
+  call CleanUp()
+
+Execute (s:difference returns sorted difference of two lists):
+  let a = ['foo', 'bar', 'baz']
+  let b = ['bar']
+  AssertEqual ['baz', 'foo'], S('difference', a, b)
+
+Execute (s:difference removes duplicates):
+  let a = ['foo', 'bar', 'bar', 'baz', 'baz']
+  let b = ['bar']
+  AssertEqual ['baz', 'foo'], S('difference', a, b)
+
+" Execute (s:b returns the value of a variable from b: scope):
+  " let b:foo = ["bar"]
+  " let rtn = S('b', 'foo', g:)
+  " AssertEqual ["bar"], rtn
+
+" Execute(s:b copies and sets a variable from g: scope when missing):
+  " let g:foo = ["bar"]
+  " let rtn = S('b', 'foo', g:)
+  " AssertEqual g:foo, b:foo
+  " Assert g:foo isnot b:foo
+
+Execute(s:get_or_copy returns value from scope):
+  let g:foo = ["bar"]
+  let rtn = S('get_or_copy', v:false, 'foo', b:, g:)
+  AssertEqual g:foo, rtn
+  Assert g:foo is rtn
+
+  let rtn = S('get_or_copy', v:true, 'foo', b:, g:)
+  AssertEqual rtn, g:foo
+  Assert rtn is b:foo
+  Assert g:foo isnot b:foo
+
+
+Execute(s:get looks for key in dictionaries):
+  AssertEqual [], S('get', 'foo', [], b:, g:)
+  let g:foo = 'g'
+  AssertEqual 'g', S('get', 'foo', [], b:, g:)
+  let b:foo = 'b'
+  AssertEqual 'b', S('get', 'foo', [], b:, g:)
+
+Execute(s:parse_options parses a string of options):
+  let opts = "-l foo -b --hello world --more"
+  AssertEqual ['-l foo', '-b', '--hello world', '--more'],
+              \ S('parse_options', opts)
+  let opts = "ack -B -f foo --hello world"
+  AssertEqual ['ack', '-B', '-f foo', '--hello world'],
+              \ S('parse_options', opts)
+
+Execute(ack#Prg assembles command for g:ackprg):
+  AssertEqual Ack(), ack#Prg(). ' '
+
+Execute(ack#Ignore adds files/dirs to ignore):
+  call ack#Ignore(v:false, 'foo', 'bar')
+  let expected = Ack('--ignore bar --ignore foo')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#Ignore can fork to buffer local):
+  call ack#Ignore(v:false, 'foo', 'bar')
+  call ack#Ignore(v:true, 'baz')
+  call ack#Ignore(v:false, 'boof')
+  let expected = Ack('--ignore bar --ignore baz --ignore foo')
+  AssertEqual expected, ack#Prg()
+  call ack#WipeBufferLocal()
+  let expected = Ack('--ignore bar --ignore boof --ignore foo')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#Include includes files/dirs from the ignore list):
+  call ack#Ignore(v:false, 'foo', 'bar')
+  call ack#Include(v:false, 'bar', 'baz')
+  let expected = Ack('--ignore foo')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#Include can fork to buffer local):
+  call ack#Ignore(v:false, 'foo', 'bar', 'baz')
+  call ack#Include(v:true, 'baz')
+  let expected = Ack('--ignore bar --ignore foo')
+  AssertEqual expected, ack#Prg()
+  call ack#WipeBufferLocal()
+  let expected = Ack('--ignore bar --ignore baz --ignore foo')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#AddOption adds options):
+  call ack#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
+  let expected = Ack('--foo bar -f --baz')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#AddOption can fork to buffer local):
+  call ack#AddOption(v:false, '-f', '--baz')
+  call ack#AddOption(v:true, '--foo', 'bar')
+  let expected = Ack('-f --baz --foo bar')
+  AssertEqual expected, ack#Prg()
+  call ack#WipeBufferLocal()
+  let expected = Ack('-f --baz')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#RemoveOption removes options):
+  call ack#AddOption(v:false, '--foo', 'bar', '-f', '--baz')
+  call ack#RemoveOption(v:false, '--foo', '-f')
+  let expected = Ack('--baz')
+  AssertEqual expected, ack#Prg()
+
+Execute(ack#RemoveOption can fork to buffer local):
+  call ack#AddOption(v:false, '-f', '--foo', 'bar', '--baz')
+  call ack#RemoveOption(v:true, '--foo')
+  let expected = Ack('-f --baz')
+  AssertEqual expected, ack#Prg()
+  call ack#WipeBufferLocal()
+  let expected = Ack('-f --foo bar --baz')
+  AssertEqual expected, ack#Prg()
+
+Execute(AckInclude#complete completes ignored directories):
+  call ack#Ignore(v:false, 'foo', 'bar')
+  AssertEqual "bar\nfoo", ack#complete('', 'AckInclude', '')
+
+Execute(AckIncludeBiffer#complete completes on buffer local):
+  call ack#Ignore(v:false, 'foo')
+  call ack#Ignore(v:true, 'bar')
+  AssertEqual "bar\nfoo", ack#complete('', 'AckIncludeBuffer', '')
+
+Execute(AckAddOption#complete completes whitelisted options):
+  let wl = sort(split(g:ack_whitelisted_options, ' '))
+  AssertEqual join(wl, "\n"), ack#complete('', 'AckAddOption', '')
+
+  call ack#AddOption(v:false, '--case')
+  AssertEqual join(wl[1:], "\n"), ack#complete('', 'AckAddOption', '')
+
+  call ack#RemoveOption(v:false, '--case')
+  AssertEqual join(wl, "\n"), ack#complete('', 'AckAddOption', '')
+
+Execute(AckAddOptionBuffer#complete completes on buffer local):
+  let wl = sort(split(g:ack_whitelisted_options, ' '))
+  call ack#AddOption(v:false, wl[0])
+  call ack#AddOption(v:true, wl[1])
+  AssertEqual wl[2], ack#complete('', 'AckAddOptionBuffer', '')
+
+Execute(AckRemoveOption#complete completes set options):
+  let wl = sort(split(g:ack_whitelisted_options, ' '))
+  call ack#AddOption(v:false, wl[0], wl[1], wl[2])
+  AssertEqual join(wl[:2], "\n"), ack#complete('', 'AckRemoveOption', '')
+  call ack#RemoveOption(v:false, wl[0])
+  AssertEqual join(wl[1:2], "\n"), ack#complete('', 'AckRemoveOption', '')
+
+Execute(AckRemoveOptionBuffer#complete completes on buffer local):
+  let wl = sort(split(g:ack_whitelisted_options, ' '))
+  call ack#AddOption(v:false, wl[0], wl[1], wl[2])
+  call ack#RemoveOption(v:true, wl[1], wl[2])
+  AssertEqual wl[0], ack#complete('', 'AckRemoveOptionBuffer', '')
