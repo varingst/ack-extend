@@ -6,6 +6,7 @@ endif
 if get(g:, 'loaded_ack_extension', v:false)
   finish
 endif
+let g:loaded_ack_extension = v:true
 
 command! -bang -nargs=* -complete=file
        \ Ack
@@ -59,4 +60,3 @@ command! -nargs=+ -complete=custom,acke#complete
        \ AckIncludeBuffer
        \ call acke#Include(v:true, <f-args>)
 
-let g:loaded_ack_extension = v:true

@@ -10,7 +10,7 @@ let s:var = {
   \}
 call extend(s:, s:var)
 
-" -- PUBLIC -- {{{1
+" -- Interface -- {{{1
 
 fun! acke#Prg(...) abort " {{{2
   " assembles and returns ack command
@@ -96,7 +96,7 @@ fun! acke#complete(...) abort " {{{2
   return join(l:completions, "\n")
 endfun
 
-" -- PRIVATE -- {{{1
+" -- Private -- {{{1
 
 fun! s:get_or_copy(expr, key, a, b) abort " {{{2
   " get entry by key from a (expr true) or b (expr false)

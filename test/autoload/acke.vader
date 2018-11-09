@@ -22,54 +22,6 @@ After:
   unlet! g:ackprg
   call CleanUp()
 
-Execute (s:difference returns sorted difference of two lists):
-  let a = ['foo', 'bar', 'baz']
-  let b = ['bar']
-  AssertEqual ['baz', 'foo'], S('difference', a, b)
-
-Execute (s:difference removes duplicates):
-  let a = ['foo', 'bar', 'bar', 'baz', 'baz']
-  let b = ['bar']
-  AssertEqual ['baz', 'foo'], S('difference', a, b)
-
-" Execute (s:b returns the value of a variable from b: scope):
-  " let b:foo = ["bar"]
-  " let rtn = S('b', 'foo', g:)
-  " AssertEqual ["bar"], rtn
-
-" Execute(s:b copies and sets a variable from g: scope when missing):
-  " let g:foo = ["bar"]
-  " let rtn = S('b', 'foo', g:)
-  " AssertEqual g:foo, b:foo
-  " Assert g:foo isnot b:foo
-
-Execute(s:get_or_copy returns value from scope):
-  let g:foo = ["bar"]
-  let rtn = S('get_or_copy', v:false, 'foo', b:, g:)
-  AssertEqual g:foo, rtn
-  Assert g:foo is rtn
-
-  let rtn = S('get_or_copy', v:true, 'foo', b:, g:)
-  AssertEqual rtn, g:foo
-  Assert rtn is b:foo
-  Assert g:foo isnot b:foo
-
-
-Execute(s:get looks for key in dictionaries):
-  AssertEqual [], S('get', 'foo', [], b:, g:)
-  let g:foo = 'g'
-  AssertEqual 'g', S('get', 'foo', [], b:, g:)
-  let b:foo = 'b'
-  AssertEqual 'b', S('get', 'foo', [], b:, g:)
-
-Execute(s:parse_options parses a string of options):
-  let opts = "-l foo -b --hello world --more"
-  AssertEqual ['-l foo', '-b', '--hello world', '--more'],
-              \ S('parse_options', opts)
-  let opts = "ack -B -f foo --hello world"
-  AssertEqual ['ack', '-B', '-f foo', '--hello world'],
-              \ S('parse_options', opts)
-
 Execute(acke#Prg assembles command for g:ackprg):
   AssertEqual Ack(), acke#Prg(). ' '
 
@@ -169,3 +121,40 @@ Execute(AckRemoveOptionBuffer#complete completes on buffer local):
   call acke#AddOption(v:false, wl[0], wl[1], wl[2])
   call acke#RemoveOption(v:true, wl[1], wl[2])
   AssertEqual wl[0], acke#complete('', 'AckRemoveOptionBuffer', '')
+Execute (s:difference returns sorted difference of two lists):
+  let a = ['foo', 'bar', 'baz']
+  let b = ['bar']
+  AssertEqual ['baz', 'foo'], S('difference', a, b)
+
+Execute (s:difference removes duplicates):
+  let a = ['foo', 'bar', 'bar', 'baz', 'baz']
+  let b = ['bar']
+  AssertEqual ['baz', 'foo'], S('difference', a, b)
+
+Execute(s:get_or_copy returns value from scope):
+  let g:foo = ["bar"]
+  let rtn = S('get_or_copy', v:false, 'foo', b:, g:)
+  AssertEqual g:foo, rtn
+  Assert g:foo is rtn
+
+  let rtn = S('get_or_copy', v:true, 'foo', b:, g:)
+  AssertEqual rtn, g:foo
+  Assert rtn is b:foo
+  Assert g:foo isnot b:foo
+
+
+Execute(s:get looks for key in dictionaries):
+  AssertEqual [], S('get', 'foo', [], b:, g:)
+  let g:foo = 'g'
+  AssertEqual 'g', S('get', 'foo', [], b:, g:)
+  let b:foo = 'b'
+  AssertEqual 'b', S('get', 'foo', [], b:, g:)
+
+Execute(s:parse_options parses a string of options):
+  let opts = "-l foo -b --hello world --more"
+  AssertEqual ['-l foo', '-b', '--hello world', '--more'],
+              \ S('parse_options', opts)
+  let opts = "ack -B -f foo --hello world"
+  AssertEqual ['ack', '-B', '-f foo', '--hello world'],
+              \ S('parse_options', opts)
+
